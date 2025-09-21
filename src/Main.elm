@@ -6,6 +6,7 @@ import Http
 import Html exposing (Html, div, h1, h2, text)
 import Json.Decode exposing (Decoder)
 import Decode exposing (decodeCharacters)
+import Combatant exposing (Combatant, initializeCombatant, viewCombatant)
 
 
 main : Program () Model Msg
@@ -21,13 +22,14 @@ main =
 type alias Model =
   { pcs: List Character
   , monsters : List Character
+  , combatants: List Combatant
   , error: Maybe Http.Error
   }
 
 
 init : ( Model, Cmd Msg )
 init =
-  ( Model [] [] Nothing
+  ( Model [] [] [] Nothing
   , Cmd.batch
     [ Http.get
       { url = "/data/pcs.json"
@@ -66,8 +68,14 @@ update msg model =
       , Cmd.none
       )
 
-    _ ->
-      ( model, Cmd.none )
+    SelectCharacter character ->
+      initializeCombatant character
+        |> ( \combatant -> combatant :: model.combatants )
+        |> ( \combatants ->
+            ( { model | combatants = combatants }
+            , Cmd.none
+            )
+           )
 
 
 view : Model -> Html Msg
@@ -78,15 +86,21 @@ view model =
 
     Nothing ->
       div []
-        [ h1 [] [ text "Characters" ]
-        , div []
-          [ h2 [] [ text "Player Characters" ]
-          , viewList SelectCharacter model.pcs
+        [ div []
+          [ h1 [] [ text "Characters" ]
+          , div []
+            [ h2 [] [ text "Player Characters" ]
+            , viewList SelectCharacter model.pcs
+            ]
+          , div []
+            [ h2 [] [ text "Monsters / NPCs" ]
+            , viewList SelectCharacter model.monsters
+            ]
           ]
         , div []
-          [ h2 [] [ text "Monsters / NPCs" ]
-          , viewList SelectCharacter model.monsters
-          ]
+          ( h1 [] [ text "Combatants" ]
+          :: List.map viewCombatant model.combatants 
+          )
         ]
 
 
