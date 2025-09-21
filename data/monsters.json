@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Minotaur Skeleton",
+    "armor-class": 12,
+    "hit-points": 45,
+    "initiative": 10
+  },
+  {
+    "name": "Specter",
+    "armor-class": 12,
+    "hit-points": 22,
+    "initiative": 12
+  },
+  {
+    "name": "Bodak",
+    "armor-class": 15,
+    "hit-points": 58,
+    "initiative": 13
+  }
+]

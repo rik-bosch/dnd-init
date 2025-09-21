@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Aryn",
+    "armor-class": 21,
+    "hit-points": 59,
+    "initiative": 9
+  },
+  {
+    "name": "Fonkin",
+    "armor-class": 14,
+    "hit-points": 32,
+    "initiative": 12
+  },
+  {
+    "name": "Ka Ching",
+    "armor-class": 14,
+    "hit-points": 48,
+    "initiative": 12
+  },
+  {
+    "name": "Nimorn",
+    "armor-class": 15,
+    "hit-points": 34,
+    "initiative": 13
+  },
+  {
+    "name": "Turin",
+    "armor-class": 19,
+    "hit-points": 67,
+    "initiative": 10
+  }
+]
