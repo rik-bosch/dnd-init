@@ -3,7 +3,7 @@ module Combatant exposing (..)
 import Character exposing (Character, viewCharacter)
 import Set exposing (Set)
 import Html exposing (Html, div, progress, strong, text, br)
-import Html.Attributes exposing (attribute, value)
+import Html.Attributes exposing (attribute, value, class)
 
 
 type Stance
@@ -113,7 +113,7 @@ viewHp combatant =
 
 viewCombatant : Combatant -> Html msg
 viewCombatant combatant =
-  div []
+  div [ class "card" ]
     [ viewCharacter combatant.character
     , viewHp combatant 
     ]

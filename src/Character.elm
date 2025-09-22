@@ -1,6 +1,7 @@
 module Character exposing (..)
 
 import Html exposing (Html, div, ul, li, br, strong, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 
 
@@ -28,7 +29,7 @@ viewCharacter character =
 
 viewList : ( Character -> msg ) -> List Character -> Html msg
 viewList selectCharacter characters =
-  ul []
+  ul [ class "menu" ]
     ( characters |> List.map
       ( \character ->
         li [ onClick ( selectCharacter character ) ]
