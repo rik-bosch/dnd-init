@@ -3,7 +3,8 @@ module Main exposing (..)
 import Browser
 import Character exposing (Character, viewList)
 import Http
-import Html exposing (Html, div, h1, h2, text)
+import Html exposing (Html, div, h1, h2, text, node)
+import Html.Attributes exposing (class, rel, href)
 import Json.Decode exposing (Decoder)
 import Decode exposing (decodeCharacters)
 import Combatant exposing (Combatant, initializeCombatant, viewCombatant)
@@ -86,21 +87,24 @@ view model =
 
     Nothing ->
       div []
-        [ div []
-          [ h1 [] [ text "Characters" ]
-          , div []
-            [ h2 [] [ text "Player Characters" ]
-            , viewList SelectCharacter model.pcs
+        [ node "link" [ rel "stylesheet", href "/app.css" ] []
+        , div [ class "top-structure" ]
+          [ div []
+            [ h1 [] [ text "Characters" ]
+            , div []
+              [ h2 [] [ text "Player Characters" ]
+              , viewList SelectCharacter model.pcs
+              ]
+            , div []
+              [ h2 [] [ text "Monsters / NPCs" ]
+              , viewList SelectCharacter model.monsters
+              ]
             ]
           , div []
-            [ h2 [] [ text "Monsters / NPCs" ]
-            , viewList SelectCharacter model.monsters
-            ]
+            ( h1 [] [ text "Combatants" ]
+            :: List.map viewCombatant model.combatants 
+            )
           ]
-        , div []
-          ( h1 [] [ text "Combatants" ]
-          :: List.map viewCombatant model.combatants 
-          )
         ]
 
 

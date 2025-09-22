@@ -1,0 +1,14 @@
+html {
+    font-family: monospace;
+    font-size: large;
+}
+
+/* Page layout */
+.top-structure {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+}
+
+.top-structure > * {
+    margin: 1rem;
+}
