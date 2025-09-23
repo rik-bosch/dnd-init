@@ -44,65 +44,64 @@ initializeCombatant character =
   }
 
 
-resetRound : Combatant -> Combatant
-resetRound combatant =
-  { combatant
-  | stance = Idle
-  , actions = initialActions
-  }
+type Adjustment
+  = ResetRound
+  | AdjustHp Int
+  | SetStance Stance
+  | AddCondition String
+  | RemoveCondition String
+  | UseAction
+  | UseBonusAction
+  | UseReaction
 
 
-adjustHp : Int -> Combatant -> Combatant
-adjustHp hp combatant =
-  { combatant
-  | hp = hp
-  }
+update : Adjustment -> Combatant -> Combatant
+update msg combatant =
+  case msg of
+    ResetRound ->
+      { combatant
+      | stance = Idle
+      , actions = initialActions
+      }
+
+    AdjustHp hp ->
+      { combatant
+      | hp = hp
+      }
+
+    SetStance stance ->
+      { combatant
+      | stance = stance
+      }
+
+    AddCondition condition ->
+      combatant.conditions
+        |> Set.insert condition
+        |> ( \conditions -> { combatant | conditions = conditions } )
+
+    RemoveCondition condition ->
+      combatant.conditions
+        |> Set.remove condition
+        |> ( \conditions -> { combatant | conditions = conditions } )
+
+    UseAction ->
+      combatant.actions
+        |> ( \actions -> { actions | action = True } )
+        |> ( \actions -> { combatant | actions = actions } )
+
+    UseBonusAction ->
+      combatant.actions
+        |> ( \actions -> { actions | bonusAction  = True } )
+        |> ( \actions -> { combatant | actions = actions } )
+
+    UseReaction ->
+      combatant.actions
+        |> ( \actions -> { actions | reaction   = True } )
+        |> ( \actions -> { combatant | actions = actions } )
 
 
-setStance : Stance -> Combatant -> Combatant
-setStance stance combatant =
-  { combatant
-  | stance = stance
-  }
-
-
-addCondition : String -> Combatant -> Combatant
-addCondition condition combatant =
-  combatant.conditions
-    |> Set.insert condition
-    |> ( \conditions -> { combatant | conditions = conditions } )
-
-
-removeCondition : String -> Combatant -> Combatant
-removeCondition condition combatant =
-  combatant.conditions
-    |> Set.remove condition
-    |> ( \conditions -> { combatant | conditions = conditions } )
-
-
-useAction : Combatant -> Combatant
-useAction combatant =
-  combatant.actions
-    |> ( \actions -> { actions | action = True } )
-    |> ( \actions -> { combatant | actions = actions } )
-
-
-useBonusAction : Combatant -> Combatant
-useBonusAction combatant =
-  combatant.actions
-    |> ( \actions -> { actions | bonusAction  = True } )
-    |> ( \actions -> { combatant | actions = actions } )
-
-
-useReaction : Combatant -> Combatant
-useReaction  combatant =
-  combatant.actions
-    |> ( \actions -> { actions | reaction   = True } )
-    |> ( \actions -> { combatant | actions = actions } )
-
-
-viewHp : Combatant -> Html msg
-viewHp combatant =
+viewHp : ( Adjustment -> msg ) -> Combatant -> Html msg
+viewHp adjust combatant =
   div []
     [ strong [] [ text "Current Hit Points: " ]
     , text ( ( String.fromInt combatant.hp ) ++ " / " ++ ( String.fromInt combatant.character.hp ) )
@@ -111,9 +110,9 @@ viewHp combatant =
     ]
 
 
-viewCombatant : Combatant -> Html msg
-viewCombatant combatant =
+viewCombatant : ( Adjustment -> msg ) -> Combatant -> Html msg
+viewCombatant adjust combatant =
   div [ class "card" ]
     [ viewCharacter combatant.character
-    , viewHp combatant 
+    , viewHp adjust combatant 
     ]

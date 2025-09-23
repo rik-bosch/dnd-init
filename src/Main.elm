@@ -8,6 +8,7 @@ import Html.Attributes exposing (class, rel, href)
 import Json.Decode exposing (Decoder)
 import Decode exposing (decodeCharacters)
 import Combatant exposing (Combatant, initializeCombatant, viewCombatant)
+import Dict exposing (Dict)
 
 
 main : Program () Model Msg
@@ -23,14 +24,14 @@ main =
 type alias Model =
   { pcs: List Character
   , monsters : List Character
-  , combatants: List Combatant
+  , combatants: Dict Int Combatant
   , error: Maybe Http.Error
   }
 
 
 init : ( Model, Cmd Msg )
 init =
-  ( Model [] [] [] Nothing
+  ( Model [] [] Dict.empty Nothing
   , Cmd.batch
     [ Http.get
       { url = "/data/pcs.json"
@@ -49,34 +50,34 @@ type Msg
   | LoadMonsters ( List Character )
   | HandleError Http.Error 
   | SelectCharacter Character
+  | AdjustCombatant Int Combatant.Adjustment
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    LoadPcs pcs ->
-      ( { model | pcs = pcs }
-      , Cmd.none
-      )
+  let
+    noCmd newModel =
+      ( newModel, Cmd.none )
+  
+  in
+    case msg of
+      LoadPcs pcs ->
+        noCmd { model | pcs = pcs }
 
-    LoadMonsters monsters ->
-      ( { model | monsters = monsters }
-      , Cmd.none
-      )
+      LoadMonsters monsters ->
+        noCmd { model | monsters = monsters }
 
-    HandleError error ->
-      ( { model | error = Just error }
-      , Cmd.none
-      )
+      HandleError error ->
+        noCmd { model | error = Just error }
 
-    SelectCharacter character ->
-      initializeCombatant character
-        |> ( \combatant -> combatant :: model.combatants )
-        |> ( \combatants ->
-            ( { model | combatants = combatants }
-            , Cmd.none
-            )
-           )
+      SelectCharacter character ->
+        initializeCombatant character
+          |> ( \combatant -> Dict.insert ( nextKey model.combatants ) combatant model.combatants )
+          |> ( \combatants -> { model | combatants = combatants } )
+          |> noCmd
+
+      _ ->
+        noCmd model
 
 
 view : Model -> Html Msg
@@ -102,7 +103,7 @@ view model =
             ]
           , div []
             ( h1 [] [ text "Combatants" ]
-            :: List.map viewCombatant model.combatants 
+            :: List.map ( viewCombatant ( AdjustCombatant 0 ) ) ( sortCombatants model.combatants )
             )
           ]
         ]
@@ -122,3 +123,19 @@ handleHttpResult success decoder =
 
   in
     Http.expectJson unpackResult decoder
+
+
+nextKey : Dict Int a -> Int
+nextKey aDict =
+  Dict.keys aDict
+    |> List.maximum
+    |> Maybe.withDefault 0
+    |> ( \key -> key + 1 )
+
+
+sortCombatants : Dict Int Combatant -> List Combatant
+sortCombatants combatants =
+  combatants
+    |> Dict.values
+    |> List.sortBy ( \combatant -> combatant.character.init )
+    |> List.reverse
